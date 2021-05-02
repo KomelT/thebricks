@@ -1,14 +1,125 @@
 let interval;
-var sekunde = -1;
-var sekundeI;
-var minuteI = -1;
-var intTimer;
-var izpisTimer;
+let sekunde = -1;
+let sekundeI;
+let minuteI = -1;
+let intTimer;
+let izpisTimer;
+let mousePos;
+let name;
+let start = true;
 
-function butHandler() {
-	document.getElementById('alert1').style.display = 'none';
-	timer();
-	drawIt();
+let exit = false;
+
+let hej = localStorage.getItem("score")
+//console.log(hej[0].name)
+
+Swal.fire({
+	icon: 'warning',
+	title: 'Pozdravljeni v igri The Bricks!',
+	text: 'Da se boste lahko na koncu primerjali z drugimi igralci sedaj prosimo vnesite vaše ime ali vzdevek.',
+	input: "text",
+	confirmButtonText: "Shrani"
+}).then((response) => {
+	let ime = response.value
+
+	if (ime == undefined || ime.trim() == "") {
+		let date = new Date();
+		name = date.toLocaleTimeString();
+	} else {
+		name = ime
+	}
+
+	console.log(name)
+	Swal.fire({
+		icon: 'info',
+		title: 'Navodila',
+		text: 'Po kliku na gumb "Naprej" boste morali pritisniti tipko "space" oz. presledek. da se bo igra začela in prav tako seštevati čas, ki ste ga potrebovali za uničevanje opek. Ko vam žogica pade na tla in ste pripravljeni nadaljevati pritisnite prav tako tipko presledek. Na voljo imate 3 življenja.',
+		confirmButtonText: "Naprej"
+	}).then(() => {
+		startHandler()
+	})
+})
+
+function scoreBoard() {
+
+	exit = true;
+
+	let lives = document.getElementById('lives');
+	var node = document.createTextNode("❤");
+	var node1 = document.createTextNode("");
+	var node2 = document.createTextNode("❤");
+	var node3 = document.createTextNode("");
+	var node4 = document.createTextNode("❤");
+	var node5 = document.createTextNode("");
+
+	lives.appendChild(node)
+	lives.appendChild(node1)
+	lives.appendChild(node2)
+	lives.appendChild(node3)
+	lives.appendChild(node4)
+	lives.appendChild(node5)
+
+
+	let scores = JSON.parse(localStorage.getItem("score"))
+
+	if (!Array.isArray(scores)) {
+		Swal.fire({
+			icon: 'error',
+			title: 'Napaka!',
+			text: 'Prišlo je do napake pri branju iz Local Storage! Opravičujemo se za napako.',
+			confirmButtonText: "Naprej"
+		})
+	} else {
+		console.log("Scores is array")
+		function compare(a, b) {
+			if (a.points < b.points) return 1;
+
+			if (a.points > b.points) return -1;
+
+			if (a.points == b.points) {
+				if (a.time < b.time) return -1;
+				else return 1;
+			}
+			return 0;
+		}
+
+		scores.sort(compare);
+
+		let data = "<table><tr><th>Mesto</th><th>Ime</th><th>Št. točk</th><th>Čas (sekund)</th></tr>"
+
+		scores.forEach((obj, i) => {
+			data = data + "<tr><td>" + (i + 1) + ".</td><td>" + obj.name + "</td><td>" + obj.points + "</td><td>" + obj.time + "</td></tr>"
+		})
+
+		data = data + "</table>"
+
+		Swal.fire({
+			icon: 'info',
+			title: 'Rezultati',
+			text: '',
+			confirmButtonText: "Naprej",
+			footer: data
+		}).then(() => {
+			window.location.reload();
+		})
+
+	}
+}
+
+function startHandler() {
+	clearInterval(interval)
+	clearInterval(sekundeI)
+	clearInterval(intTimer)
+	clearInterval(izpisTimer)
+	sekunde = -1;
+	minuteI = -1;
+	start = true;
+
+	try {
+		drawIt();
+	} catch (e) {
+		console.log(e)
+	}
 }
 
 function timer() {
@@ -23,8 +134,8 @@ function timer() {
 
 function drawIt() {
 	let canvas = document.getElementById('canvas');
-	let x = 150;
-	let y = 150;
+	let x = 345;
+	let y = 285;
 	let dx = 2;
 	let dy = 3;
 	let WIDTH;
@@ -46,8 +157,6 @@ function drawIt() {
 		HEIGHT = $('#canvas').height();
 		sekunde = 0;
 		izpisTimer = '00:00';
-		intTimer = setInterval(timer, 1000);
-		return setInterval(draw, 10);
 	}
 
 	function init_paddle() {
@@ -58,6 +167,8 @@ function drawIt() {
 	}
 
 	function initBricks() {
+		console.log("Init bricks")
+		bricks = []
 		brickH = 13;
 		brickW = 50;
 		for (i = 0; i < 11; i++) {
@@ -116,7 +227,7 @@ function drawIt() {
 	function clear() {
 		ctx.clearRect(0, 0, WIDTH, HEIGHT, 0);
 	}
-	//END LIBRARY CODE
+	// END LIBRARY CODE
 	function draw() {
 		clear();
 		ctx.closePath();
@@ -127,17 +238,10 @@ function drawIt() {
 		rect(padX, padY, padW, padH, 0);
 		ctx.closePath();
 
-		//Pregleda kateri brick je bil zadet
+		// Pregleda kateri brick je bil zadet
 		bricks.forEach((brick, index) => {
 			rect(brick.x, brick.y, brickW, brickH, brick.hardness);
 			ctx.closePath();
-
-			document.getElementById('alert2text').innerText =
-				'Porabili ste vsa 3 življenja in zbili ste za ' +
-				points +
-				' točk opek v času ' +
-				izpisTimer +
-				'.';
 
 			if (x + dx > brick.x && x + dx * 2 < brick.x + brickW) {
 				if (y + dy * 2 > brick.y && y + dy * 2 < brick.y + brickH) {
@@ -151,78 +255,192 @@ function drawIt() {
 		});
 
 		if (bricks.length == 0) {
-			document.getElementById('alert2text').innerText =
-				'Čestitke! Dosegli ste vseh ' +
-				points +
-				' točk. Vse opeke ste zbili v času ' +
-				izpisTimer +
-				'.';
+			Swal.fire({
+				icon: 'warning',
+				title: 'KONEC IGRE',
+				text: 'Čestitke zbili ste vse opeke v času ' +
+					izpisTimer +
+					'min .'
+			})
 
 			clearInterval(interval);
-			//window.clearInterval(interval2);
+			// window.clearInterval(interval2);
 			clear();
-			document.getElementById('alert2').style.display = 'flex';
 			clearInterval(intTimer);
+
+			if (localStorage.getItem("score") == null) {
+				console.log("local storage is empty")
+				localStorage.setItem("score", JSON.stringify([{
+					name: name,
+					points: points,
+					time: sekunde
+				}]));
+			} else {
+				let tmp = JSON.parse(localStorage.getItem("score"));
+				if (Array.isArray(tmp)) {
+					console.log("tmp is array")
+					tmp.push({
+						name: name,
+						points: points,
+						time: sekunde
+					})
+
+					localStorage.setItem("score", JSON.stringify(tmp));
+				} else {
+					console.log("tmp is not array")
+					localStorage.setItem("score", JSON.stringify([{
+						name: name,
+						points: points,
+						time: sekunde
+					}]));
+				}
+
+				console.log(JSON.parse(localStorage.getItem("score")))
+			}
 		}
 
-		//Ko žogica pade na tla se excecuta vse kar je v if-u
+		// Ko žogica pade na tla se excecuta vse kar je v if-u
 		if (y + dy > HEIGHT - r) {
-			padX = WIDTH / 2 - padW / 2;
-			x = WIDTH / 2 - r / 2;
-			y = padY - r * 5;
 
-			let randX = Math.floor(Math.random() * WIDTH);
+			/*let randX = Math.floor(Math.random() * WIDTH);
 			dx = (x - (randX + padW / 2)) / padW;
-			dy = -dy;
+			dy = -dy;*/
+
+			clearInterval(intTimer)
+			clearInterval(interval)
+
+			let lockBall = setInterval(() => {
+
+				x = 345
+				y = 290;
+
+				padY = 300;
+				padX = WIDTH / 2 - padW / 2;
+
+				clear();
+				ctx.closePath();
+
+				circle(x, y, 10);
+				ctx.closePath();
+
+				rect(padX, padY, padW, padH, 0);
+				ctx.closePath();
+
+				// Pregleda kateri brick je bil zadet
+				bricks.forEach((brick, index) => {
+					rect(brick.x, brick.y, brickW, brickH, brick.hardness);
+					ctx.closePath();
+				});
+
+				if (exit)
+					return
+
+				document.body.onkeypress = (e) => {
+					if (e.keyCode == 32) {
+						console.log("clearInterval(lockBall)")
+						intTimer = setInterval(timer, 1000);
+						interval = setInterval(draw, 10);
+						clearInterval(lockBall)
+					}
+				}
+			}, 10)
 
 			let lives = document.getElementById('lives');
 			lives.firstChild.remove();
 			lives.firstChild.remove();
 
 			console.log(lives.childNodes.length);
-			if (lives.childNodes.length == 1) {
+			if (lives.childNodes.length <= 1) {
 				clearInterval(interval);
-				//window.clearInterval(interval2);
+				// window.clearInterval(interval2);
+				Swal.fire({
+					icon: 'warning',
+					title: 'KONEC IGRE',
+					text: 'Porabili ste vsa 3 življenja in zbili ste za ' +
+						points +
+						' točk opek v času ' +
+						izpisTimer +
+						'.'
+				})
 				clear();
-				document.getElementById('alert2').style.display = 'flex';
 				clearInterval(intTimer);
+
+				console.log(name)
+				console.log(points)
+				console.log(sekunde)
+
+				if (localStorage.getItem("score") == null) {
+					console.log("local storage is empty")
+					localStorage.setItem("score", JSON.stringify([{
+						name: name,
+						points: points,
+						time: sekunde
+					}]));
+				} else {
+					let tmp = JSON.parse(localStorage.getItem("score"));
+					if (Array.isArray(tmp)) {
+						console.log("tmp is array")
+						tmp.push({
+							name: name,
+							points: points,
+							time: sekunde
+						})
+
+						localStorage.setItem("score", JSON.stringify(tmp));
+					} else {
+						console.log("tmp is not array")
+						localStorage.setItem("score", JSON.stringify([{
+							name: name,
+							points: points,
+							time: sekunde
+						}]));
+					}
+
+					console.log(JSON.parse(localStorage.getItem("score")))
+				}
+
+				scoreBoard()
 			}
 		}
 
-		//Preverjanje ali je žogica zadela katero od navpičnih sten
+		// Preverjanje ali je žogica zadela katero od navpičnih sten
 		if (x + dx > WIDTH - r || x + dx < 0 + r) dx = -dx;
 
-		//Preverjanje ali je žogica zadela katero od vodoravnih sten
+		// Preverjanje ali je žogica zadela katero od vodoravnih sten
 		if (y + dy > HEIGHT - r || y + dy < 0 + r) dy = -dy;
 
-		//Preverjanje ali je žogica zadela plošček
+		// Preverjanje ali je žogica zadela plošček
 		if (x > padX && x < padX + padW) {
 			if (y + dy > padY - r && y + dy < padY + padH + r) {
-				//dy = -dy;
+				// dy = -dy;
 				dx = 8 * ((x - (padX + padW / 2)) / padW);
 				dy = -dy;
 			}
 		}
-
-		/*if (x == padX + padW) {
-				if (y >= padY && y <= padY + padH) {
-dx = -dx;
-				}
-			}*/
 
 		x += dx;
 		y += dy;
 
 		document.getElementById('points').innerText = 'Točke: ' + points;
 	}
-	interval = init();
-	/*interval2 = setInterval(() => {
-		dx = dx * 1.01;
-		dy = dy * 1.02;
-		console.log(dx + " , " + dy)
-	}, 5000)*/
-	init_paddle();
-	initBricks();
+
+	if (start) {
+		init();
+		init_paddle();
+		initBricks();
+		draw()
+
+		console.log("start")
+
+		document.body.onkeypress = (e) => {
+			if (e.keyCode == 32) {
+				timer();
+				start = false
+				intTimer = setInterval(timer, 1000);
+				interval = setInterval(draw, 10);
+			}
+		}
+	}
 
 	function getMousePos(canvas, evt) {
 		let rect = canvas.getBoundingClientRect();
@@ -233,8 +451,8 @@ dx = -dx;
 
 	canvas.addEventListener(
 		'mousemove',
-		function (evt) {
-			let mousePos = getMousePos(canvas, evt);
+		(evt) => {
+			mousePos = getMousePos(canvas, evt);
 			if (mousePos.x + padW / 2 >= WIDTH) {
 				padX = WIDTH - padW;
 			} else if (mousePos.x - padW / 2 < 0) {
