@@ -1,11 +1,22 @@
-<html>
+<!DOCTYPE html>
+<html lang="sl">
 	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Game The Bricks</title>
+
 		<link rel="stylesheet" href="./css/style.css" />
+
+		<!--Google fonts-->
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
 		<link
 			href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&display=swap"
 			rel="stylesheet"
 		/>
+
+		<!--Sweet alert 2-->
+		<script src="//cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 	</head>
 	<body>
 		<div id="viewport">
@@ -20,25 +31,13 @@
 			</div>
 			<canvas id="canvas" width="700" height="500"></canvas>
 			<div id="blur"></div>
-			<div class="alert" id="alert1">
-				<h2>The Bricks</h2>
-				<p>
-					S klikom na gumb "Začetek!" se bo igra začela in prav tako seštevati čas, ki ste ga
-					potrebovali za uničevanje vseh opek.
-				</p>
-				<button onclick="butHandler()">Začetek!</button>
-			</div>
-			<div class="alert" id="alert2">
-				<h2>KONEC IGRE</h2>
-				<p id="alert2text">Porabili ste vsa 3 življenja in zbili ste za {točk} točk opek.</p>
-				<button onclick="location.reload()">Ponovno igraj!</button>
-			</div>
 		</div>
 		<script
 			src="https://code.jquery.com/jquery-3.5.1.js"
 			integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
 			crossorigin="anonymous"
 		></script>
-		<script src="./js/script.js"></script>
+
+		<script src="./js/script copy.js"></script>
 	</body>
 </html>

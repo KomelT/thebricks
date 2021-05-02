@@ -1,10 +1,10 @@
 let interval;
-let interval2;
 var sekunde = -1;
 var sekundeI;
 var minuteI = -1;
 var intTimer;
 var izpisTimer;
+
 function butHandler() {
 	document.getElementById('alert1').style.display = 'none';
 	timer();
@@ -139,8 +139,8 @@ function drawIt() {
 				izpisTimer +
 				'.';
 
-			if (x > brick.x && x < brick.x + brickW) {
-				if (y + dy > brick.y && y + dy < brick.y + brickH) {
+			if (x + dx > brick.x && x + dx * 2 < brick.x + brickW) {
+				if (y + dy * 2 > brick.y && y + dy * 2 < brick.y + brickH) {
 					dy = -dy;
 					brick.hardness = brick.hardness - 1;
 					points = points + 10;
@@ -158,8 +158,8 @@ function drawIt() {
 				izpisTimer +
 				'.';
 
-			window.clearInterval(interval);
-			window.clearInterval(interval2);
+			clearInterval(interval);
+			//window.clearInterval(interval2);
 			clear();
 			document.getElementById('alert2').style.display = 'flex';
 			clearInterval(intTimer);
@@ -181,8 +181,8 @@ function drawIt() {
 
 			console.log(lives.childNodes.length);
 			if (lives.childNodes.length == 1) {
-				window.clearInterval(interval);
-				window.clearInterval(interval2);
+				clearInterval(interval);
+				//window.clearInterval(interval2);
 				clear();
 				document.getElementById('alert2').style.display = 'flex';
 				clearInterval(intTimer);
@@ -216,11 +216,11 @@ dx = -dx;
 		document.getElementById('points').innerText = 'Točke: ' + points;
 	}
 	interval = init();
-	interval2 = setInterval(() => {
+	/*interval2 = setInterval(() => {
 		dx = dx * 1.01;
 		dy = dy * 1.02;
 		console.log(dx + " , " + dy)
-	}, 5000)
+	}, 5000)*/
 	init_paddle();
 	initBricks();
 

@@ -55,7 +55,7 @@
 
 .alert {
 	width: 350px;
-	height: 200px;
+	min-height: 150px;
 	background: rgba(0, 157, 168, 0.2);
 	z-index: 2;
 	position: absolute;
@@ -70,8 +70,8 @@
 	align-items: center;
 }
 
-.alert h2 {
-	margin-bottom: 10px;
+.alert p {
+	margin: 5px 0;
 }
 
 .alert button {
@@ -97,4 +97,16 @@
 
 #time {
 	margin-left: 10px;
+}
+
+.swal2-container table{
+	text-align: center;
+}
+
+.swal2-container td {
+	padding: 0 15px;
+}
+
+.swal2-container th {
+	padding: 0 15px;
 }
